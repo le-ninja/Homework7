@@ -1,40 +1,85 @@
 package com.example.android.homework7;
 
+import android.content.Context;
+import android.support.design.widget.TabLayout;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
+import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.FrameLayout;
+import android.widget.TextView;
 
-public class ProfileActivity extends AppCompatActivity implements View.OnClickListener {
+public class ProfileActivity extends AppCompatActivity {
 
-    private FrameLayout fragSwap;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
 
-        findViewById(R.id.profile_users_btn).setOnClickListener(this);
-        findViewById(R.id.profile_messages_btn).setOnClickListener(this);
-        fragSwap = (FrameLayout) findViewById(R.id.profile_frame_layout);
-    }
+        ViewPager vp = (ViewPager) findViewById(R.id.profile_viewpager);
+        PagerAdapter adapter =
+                new PagerAdapter(getSupportFragmentManager(), ProfileActivity.this);
+        vp.setAdapter(adapter);
 
-    @Override
-    public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.profile_users_btn:
-                break;
-            case R.id.profile_messages_btn:
-                break;
-            default:
-                break;
+        TabLayout tl = (TabLayout) findViewById(R.id.profile_tablayout);
+        tl.setupWithViewPager(vp);
+
+        for (int i = 0; i < tl.getTabCount(); i++) {
+            TabLayout.Tab tab = tl.getTabAt(i);
+            tab.setCustomView(adapter.getTabView(i));
         }
     }
 
-    private void usersFragmentLoad() {
-
+    @Override
+    public void onResume() {
+        super.onResume();
     }
 
-    private void messagesFragmentLoad() {
+    class PagerAdapter extends FragmentPagerAdapter {
+        String [] tabs = new String[] {getResources().getString(R.string.users_btn),
+            getResources().getString(R.string.messages_btn)};
+        Context context;
 
+        public PagerAdapter(FragmentManager fm, Context context) {
+            super(fm);
+            this.context = context;
+        }
+
+        @Override
+        public int getCount() {
+            return tabs.length;
+        }
+
+        @Override
+        public Fragment getItem(int position) {
+            switch(position) {
+                case 0:
+                    return new UsersFragment();
+                case 1:
+                    return new UsersFragment();
+            }
+
+            return null;
+        }
+
+        @Override
+        public CharSequence getPageTitle(int position) {
+            // generate title based on item position
+            return tabs[position];
+        }
+
+        public View getTabView(int position) {
+            View tab = LayoutInflater.from(ProfileActivity.this).inflate(
+                    R.layout.profile_custom_tab_layout, null);
+            TextView tabTitle = (TextView) tab.findViewById(R.id.custom_text);
+            tabTitle.setText(tabs[position]);
+            return tab;
+        }
     }
 }
+
+
