@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">Homework7</string>
+    <string name="username_hint">username...</string>
+    <string name="password_hint">password...</string>
+    <string name="signin_button">Sign-In</string>
+    <string name="signup_button">Sign-Up</string>
+    <string name="create_button">Create Account</string>
+    <string name="app_id">1135620823201642</string>
+    <string name="server_token">homework7-425f5.firebaseapp.com</string>
+    <string name="cancel_button">Cancel</string>
+    <string name="signup_title">Sign-Up for an Account</string>
+    <string name="edit_button">edit</string>
+    <string name="users_btn">view other users</string>
+    <string name="messages_btn">view my messages</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+</resources>

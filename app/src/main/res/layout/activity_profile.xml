@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_profile"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.example.android.homework7.ProfileActivity">
+
+    <GridLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/alert_salmon"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:id="@+id/profile_grid_layout">
+
+        <ImageView
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            app:srcCompat="@drawable/cast_abc_scrubber_control_off_mtrl_alpha"
+            android:id="@+id/profile_avatar_iv"
+            android:layout_marginLeft="30dp"
+            android:layout_marginStart="30dp"
+            android:layout_marginTop="15dp"
+            android:scaleType="fitXY"
+            android:layout_row="0"
+            android:layout_column="0"
+            android:layout_marginBottom="15dp" />
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:text="User Name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/profile_name_tv"
+                android:layout_marginTop="35dp"
+                android:layout_marginLeft="15dp"
+                android:layout_marginStart="15dp"
+                android:textSize="32sp"
+                android:textColor="@android:color/white" />
+
+            <TextView
+                android:text="User Gender"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/textView8"
+                android:layout_marginLeft="15dp"
+                android:layout_marginStart="15dp"
+                android:textColor="@android:color/white"
+                android:textSize="20sp" />
+        </LinearLayout>
+
+    </GridLayout>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/profile_grid_layout"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:id="@+id/profile_fragment_buttons">
+
+        <Button
+            android:text="@string/users_btn"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/profile_users_btn"
+            android:layout_weight="1"
+            android:textAllCaps="false"
+            android:textColor="@android:color/white"
+            android:elevation="0dp"
+            android:typeface="normal"
+            android:background="@drawable/custom_button"
+            android:textSize="18sp" />
+
+        <Button
+            android:text="@string/messages_btn"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/profile_messages_btn"
+            android:layout_weight="1"
+            android:background="@drawable/custom_button"
+            android:textAllCaps="false"
+            android:typeface="normal"
+            android:textSize="18sp"
+            android:textColor="@android:color/white" />
+    </LinearLayout>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/profile_grid_layout"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="50dp"
+        android:id="@+id/profile_frame_layout"/>
+
+</RelativeLayout>
