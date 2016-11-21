@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.example.android.homework7">
 
     <uses-permission android:name="android.permission.INTERNET" />
+
 
     <application
         android:name=".ProfileApp"
@@ -23,11 +25,12 @@
             </intent-filter>
         </activity>
         <activity
+            tools:replace="android:theme"
             android:name="com.facebook.FacebookActivity"
             android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
             android:label="@string/app_name"
             android:theme="@android:style/Theme.Translucent.NoTitleBar" />
-        <activity android:name=".ProfileActivity"></activity>
+        <activity android:name=".ProfileActivity"/>
     </application>
 
 </manifest>
