@@ -12,7 +12,11 @@
     <string name="edit_button">edit</string>
     <string name="users_btn">view other users</string>
     <string name="messages_btn">view my messages</string>
+    <string name="radio_male">Male</string>
+    <string name="radio_female">Female</string>
+    <string name="alert_gender">Gender:</string>
+    <string name="alert_gender_title">Please fill out your gender.</string>
 
     <!-- TODO: Remove or change this placeholder text -->
-
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

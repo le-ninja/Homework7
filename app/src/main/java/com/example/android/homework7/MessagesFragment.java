@@ -1,25 +1,26 @@
 package com.example.android.homework7;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import java.util.ArrayList;
 import java.util.List;
 
-public class UsersFragment extends Fragment {
-    List<User> list;
 
-    public UsersFragment() {
+public class MessagesFragment extends Fragment {
+    List<Message> list;
+
+    public MessagesFragment() {
 
     }
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -27,23 +28,23 @@ public class UsersFragment extends Fragment {
 
         Bundle extras = getArguments();
         if (extras != null) {
-            list = extras.getParcelableArrayList("USERS_LIST");
+            list = extras.getParcelableArrayList("MESSAGE_LIST");
         }
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
-        View rootView = inflater.inflate(R.layout.fragment_users, container, false);
-        RecyclerView rv = (RecyclerView) rootView.findViewById(R.id.users_frag_recycler);
+        View rootView = inflater.inflate(R.layout.fragment_messages, container, false);
+        RecyclerView rv = (RecyclerView) rootView.findViewById(R.id.messages_frag_recycler);
         rv.setHasFixedSize(true);
 
-        UsersAdapter adapter = new UsersAdapter(list);
+        MessagesAdapter adapter = new MessagesAdapter(list);
         rv.setAdapter(adapter);
         LinearLayoutManager llm = new LinearLayoutManager(getActivity());
         rv.setLayoutManager(llm);
 
-        return rootView;
+        return inflater.inflate(R.layout.fragment_messages, container, false);
     }
+
 }

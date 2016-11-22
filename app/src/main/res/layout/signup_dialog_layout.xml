@@ -74,4 +74,48 @@
         android:layout_marginTop="6dp"
         android:hint="Retype Password..." />
 
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.05">
+
+        <TextView
+            android:text="@string/alert_gender"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/alert_gender_tv"
+            android:layout_weight="1"
+            android:layout_marginLeft="50dp"
+            android:layout_marginStart="50dp"
+            android:layout_gravity="center_vertical"
+            android:textSize="18sp"
+            android:textColor="@android:color/black" />
+
+        <RadioGroup
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_weight="3"
+            android:layout_gravity="center_vertical"
+            android:id="@+id/alert_radiogroup">
+
+            <RadioButton
+                android:text="@string/radio_male"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/alert_male_rb"
+                android:layout_weight="1" />
+
+            <RadioButton
+                android:text="@string/radio_female"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/alert_female_rb"
+                android:layout_weight="1"
+                android:layout_marginEnd="30dp"
+                android:layout_marginRight="30dp" />
+        </RadioGroup>
+    </LinearLayout>
+
 </LinearLayout>

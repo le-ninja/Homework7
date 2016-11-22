@@ -1,6 +1,7 @@
 package com.example.android.homework7;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.annotation.NonNull;
@@ -11,6 +12,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.Toast;
 
 import com.facebook.AccessToken;
@@ -20,6 +23,9 @@ import com.facebook.FacebookException;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 import com.facebook.share.Sharer;
+import com.firebase.client.AuthData;
+import com.firebase.client.Firebase;
+import com.firebase.client.FirebaseError;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
@@ -37,6 +43,8 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 
+import java.util.Map;
+
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -48,12 +56,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private LoginButton fbLogin;
     private EditText email, password;
 
+    private Firebase mRef, mRefUsers, mRefUsersChild;
+    private ProgressDialog pd;
+
     private static final int RC_SIGN_IN = 9001;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        mRef = new Firebase("https://homework7-425f5.firebaseio.com");
+        mRefUsers = new Firebase("https://homework7-425f5.firebaseio.com/Users");
+
+        pd = new ProgressDialog(MainActivity.this);
+        pd.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        pd.setMessage("Creating user profile...");
 
         mAuth = FirebaseAuth.getInstance();
         mAuthListener = new FirebaseAuth.AuthStateListener() {
@@ -81,7 +98,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         fbLogin.registerCallback(mCallbackManager, new FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(LoginResult loginResult) {
-                Log.d("test", "facebook login success");
                 AuthCredential credential = FacebookAuthProvider.getCredential(
                         loginResult.getAccessToken().getToken());
                 mAuth.signInWithCredential(credential)
@@ -92,6 +108,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                     Toast.makeText(MainActivity.this, "Authentication failed.",
                                             Toast.LENGTH_SHORT).show();
                                 } else {
+                                    FirebaseUser user = task.getResult().getUser();
+                                    mRefUsersChild = mRefUsers.child(user.getUid());
+                                    User temp = new User(user.getDisplayName(), "na");
+                                    mRefUsersChild.setValue(temp);
                                     startActivity(new Intent(MainActivity.this, ProfileActivity.class));
                                 }
                             }
@@ -131,8 +151,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 startActivityForResult(signInIntent, RC_SIGN_IN);
             }
         });
-
-
     }
 
     @Override
@@ -150,17 +168,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
         }
     }
-
-    /*private void signOut() {
-        mAuth.signOut();
-        Auth.GoogleSignInApi.signOut(googleClient).setResultCallback(
-                new ResultCallback<Status>() {
-                    @Override
-                    public void onResult(@NonNull Status status) {
-
-                    }
-                });
-    }*/
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -180,7 +187,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void firebaseAuthWithGoogle(GoogleSignInAccount acct) {
-        AuthCredential credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);
+        final AuthCredential credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);
         mAuth.signInWithCredential(credential)
                 .addOnCompleteListener(MainActivity.this, new OnCompleteListener<AuthResult>() {
                     @Override
@@ -189,6 +196,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             Toast.makeText(MainActivity.this, "Authentication failed.",
                                     Toast.LENGTH_SHORT).show();
                         } else {
+                            FirebaseUser u = task.getResult().getUser();
+                            mRefUsersChild = mRefUsers.child(u.getUid());
+                            User temp = new User(u.getDisplayName(), "na");
+                            mRefUsersChild.setValue(temp);
                             startActivity(new Intent(MainActivity.this, ProfileActivity.class));
                         }
                     }
@@ -205,6 +216,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         final EditText email = (EditText) v.findViewById(R.id.alert_email_et);
         final EditText choose = (EditText) v.findViewById(R.id.alert_choose_et);
         final EditText retype = (EditText) v.findViewById(R.id.alerty_retype_et);
+        final RadioGroup gender = (RadioGroup) v.findViewById(R.id.alert_radiogroup);
 
         dialog.setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
             @Override
@@ -214,9 +226,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     Toast.makeText(MainActivity.this, "Please fill out all attributes.",
                             Toast.LENGTH_SHORT).show();
                 } else if ((choose.getText().length() < 6)) {
-
+                    Toast.makeText(MainActivity.this, "Password must be greater than 6 characters.",
+                            Toast.LENGTH_SHORT).show();
                 } else {
                     // if all criteria is met create a new account and sign the user in
+
+                    pd.show();
                     mAuth.createUserWithEmailAndPassword(email.getText().toString(),
                             choose.getText().toString())
                         .addOnCompleteListener(MainActivity.this, new OnCompleteListener<AuthResult>() {
@@ -225,14 +240,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 if (!task.isSuccessful()) {
                                     Toast.makeText(MainActivity.this, "Sign-Up has failed",
                                             Toast.LENGTH_SHORT).show();
+
                                 } else {
-                                    Intent i = new Intent(MainActivity.this, ProfileActivity.class);
-                                    i.putExtra("FULL_NAME", name.getText().toString());
-                                    startActivity(i);
+                                    FirebaseUser u = task.getResult().getUser();
+                                    String userId = u.getUid();
+                                    mRefUsersChild = mRefUsers.child(userId);
+                                    User user = new User(name.getText().toString(), ((RadioButton)
+                                            v.findViewById(gender.getCheckedRadioButtonId())).getText().toString());
+                                    mRefUsersChild.setValue(user);
+                                    startActivity(new Intent(MainActivity.this,
+                                            ProfileActivity.class));
+                                    pd.dismiss();
                                 }
 
                             }
                         });
+                    pd.dismiss();
 
                 }
             }
@@ -254,13 +277,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         // sign in user with email and password that already exists in database
         // if it does not exist offer the user a chance to sign-up
         mAuth.signInWithEmailAndPassword(email.getText().toString(), password.getText().toString())
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (!task.isSuccessful()) {
-                            Toast.makeText(MainActivity.this, "Failed to sign-in.",
-                                    Toast.LENGTH_SHORT).show();
-                            signUp();
+                            Toast.makeText(MainActivity.this, "Log in has failed.", Toast.LENGTH_SHORT)
+                                    .show();
                         } else {
                             startActivity(new Intent(MainActivity.this, ProfileActivity.class));
                         }
