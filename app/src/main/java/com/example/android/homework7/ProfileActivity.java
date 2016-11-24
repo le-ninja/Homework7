@@ -12,6 +12,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
@@ -35,6 +36,9 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
+import java.util.List;
+
 
 public class ProfileActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
@@ -47,7 +51,15 @@ public class ProfileActivity extends AppCompatActivity {
 
     DatabaseReference rootRef;
 
-    String passedUserName = "";
+    private UsersFragment uf;
+    private MessagesFragment mf;
+
+    FirebaseUser user;
+
+    private String passedUserName = "";
+    public static String currentUserId;
+    ArrayList<User> usersList = new ArrayList<>();
+    ArrayList<Message> messagesList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,10 +77,13 @@ public class ProfileActivity extends AppCompatActivity {
         mAuthListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                FirebaseUser user = firebaseAuth.getCurrentUser();
+                user = firebaseAuth.getCurrentUser();
+                mRefMessages = mRef.child("Messages");
                 if (user != null) {
-                    mRefUsersInfo = mRefUsers.child(user.getUid());
-                    mRefMessagesUser = mRefMessages.child(user.getUid());
+                    currentUserId = user.getUid();
+                    mRefUsersInfo = mRefUsers.child(currentUserId);
+                    mRefMessagesUser = mRefMessages.child(currentUserId);
+
                     mRefUsersInfo.addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
@@ -113,20 +128,51 @@ public class ProfileActivity extends AppCompatActivity {
             }
         };
 
+        ViewPager vp = (ViewPager) findViewById(R.id.profile_viewpager);
+        PagerAdapter adapter =
+                new PagerAdapter(getSupportFragmentManager(), ProfileActivity.this);
+        vp.setAdapter(adapter);
+
+        TabLayout tl = (TabLayout) findViewById(R.id.profile_tablayout);
+        tl.setupWithViewPager(vp);
+
+        for (int i = 0; i < tl.getTabCount(); i++) {
+            TabLayout.Tab tab = tl.getTabAt(i);
+            tab.setCustomView(adapter.getTabView(i));
+        }
+
         mRefUsers.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                User u = dataSnapshot.getValue(User.class);
+                String dataReference = dataSnapshot.getRef().toString();
+                String [] arr = dataReference.split("/");
+                if (!currentUserId.equals(arr[arr.length - 1])) {
+                    User u = dataSnapshot.getValue(User.class);
+                    usersList.add(u);
+                    uf.updateList(usersList);
+                }
             }
 
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-
+                String dataReference = dataSnapshot.getRef().toString();
+                String [] arr = dataReference.split("/");
+                if (!currentUserId.equals(arr[arr.length - 1])) {
+                    User u = dataSnapshot.getValue(User.class);
+                    usersList.add(u);
+                    uf.updateList(usersList);
+                }
             }
 
             @Override
             public void onChildRemoved(DataSnapshot dataSnapshot) {
-
+                String dataReference = dataSnapshot.getRef().toString();
+                String [] arr = dataReference.split("/");
+                if (!currentUserId.equals(arr[arr.length - 1])) {
+                    User u = dataSnapshot.getValue(User.class);
+                    usersList.add(u);
+                    uf.updateList(usersList);
+                }
             }
 
             @Override
@@ -140,18 +186,45 @@ public class ProfileActivity extends AppCompatActivity {
             }
         });
 
-        ViewPager vp = (ViewPager) findViewById(R.id.profile_viewpager);
-        PagerAdapter adapter =
-                new PagerAdapter(getSupportFragmentManager(), ProfileActivity.this);
-        vp.setAdapter(adapter);
+        mRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                mRefMessagesUser.addChildEventListener(new ChildEventListener() {
+                    @Override
+                    public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                        Message m = dataSnapshot.getValue(Message.class);
+                        messagesList.add(m);
+                        mf.updateList(messagesList);
+                    }
 
-        TabLayout tl = (TabLayout) findViewById(R.id.profile_tablayout);
-        tl.setupWithViewPager(vp);
+                    @Override
+                    public void onChildChanged(DataSnapshot dataSnapshot, String s) {
 
-        for (int i = 0; i < tl.getTabCount(); i++) {
-            TabLayout.Tab tab = tl.getTabAt(i);
-            tab.setCustomView(adapter.getTabView(i));
-        }
+                    }
+
+                    @Override
+                    public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+                    }
+
+                    @Override
+                    public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+                    }
+
+                    @Override
+                    public void onCancelled(FirebaseError firebaseError) {
+
+                    }
+                });
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+
+            }
+        });
+
     }
 
     class PagerAdapter extends FragmentPagerAdapter {
@@ -159,7 +232,7 @@ public class ProfileActivity extends AppCompatActivity {
             getResources().getString(R.string.messages_btn)};
         Context context;
 
-        public PagerAdapter(FragmentManager fm, Context context) {
+        private PagerAdapter(FragmentManager fm, Context context) {
             super(fm);
             this.context = context;
         }
@@ -173,11 +246,18 @@ public class ProfileActivity extends AppCompatActivity {
         public Fragment getItem(int position) {
             switch(position) {
                 case 0:
-                    return new UsersFragment();
+                    Bundle extras1 = new Bundle();
+                    extras1.putParcelableArrayList("USERS_LIST", usersList);
+                    uf = new UsersFragment();
+                    uf.setArguments(extras1);
+                    return uf;
                 case 1:
-                    return new MessagesFragment();
+                    Bundle extras2 = new Bundle();
+                    extras2.putParcelableArrayList("USERS_LIST", messagesList);
+                    mf = new MessagesFragment();
+                    mf.setArguments(extras2);
+                    return mf;
             }
-
             return null;
         }
 
@@ -196,11 +276,13 @@ public class ProfileActivity extends AppCompatActivity {
         }
     }
 
+    @Override
     public void onStart() {
         super.onStart();
         mAuth.addAuthStateListener(mAuthListener);
     }
 
+    @Override
     public void onStop() {
         super.onStop();
         if (mAuthListener != null) {

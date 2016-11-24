@@ -1,6 +1,7 @@
 package com.example.android.homework7;
 
 import android.content.Context;
+import android.os.Bundle;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -25,6 +26,7 @@ public class MessagesAdapter  extends RecyclerView.Adapter<MessagesAdapter.MyVie
     public MessagesAdapter(List<Message> list) {
         this.list = list;
     }
+
     static class MyViewHolder extends RecyclerView.ViewHolder {
         CardView card;
         TextView subject, from;

@@ -8,14 +8,16 @@ import android.os.Parcelable;
  */
 
 public class Message implements Parcelable {
-    String subject, from, dateRecieved, userId, userAvatarUrl;
-    public Message(String subject, String from, String dateRecieved, String userId,
-                   String userAvatarUrl) {
-        this.subject = subject;
-        this.from = from;
-        this.dateRecieved = dateRecieved;
+    String subject, from, dateRecieved, userId, imageUrl, message;
+    public Message() {
+    }
+
+
+    public Message(String from, String subject, String message, String userId) {
+        this.subject = from;
+        this.from = subject;
+        this.message = message;
         this.userId = userId;
-        this.userAvatarUrl = userAvatarUrl;
     }
 
     public String getSubject() {
@@ -27,11 +29,11 @@ public class Message implements Parcelable {
     }
 
     public String getUserAvatarUrl() {
-        return userAvatarUrl;
+        return imageUrl;
     }
 
-    public void setUserAvatarUrl(String userAvatarUrl) {
-        this.userAvatarUrl = userAvatarUrl;
+    public void setUserAvatarUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 
     public String getUserId() {
@@ -59,14 +61,13 @@ public class Message implements Parcelable {
     }
 
     public Message(Parcel in){
-        String[] data = new String[3];
+        String[] data = new String[4];
 
         in.readStringArray(data);
         this.subject = data[0];
         this.from = data[1];
-        this.dateRecieved = data[2];
+        this.message = data[2];
         this.userId = data[3];
-        this.userAvatarUrl = data[4];
     }
 
     public int describeContents(){
@@ -75,8 +76,7 @@ public class Message implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeStringArray(new String[] {this.subject, this.from, this.dateRecieved, this.userId,
-        this.userAvatarUrl});
+        dest.writeStringArray(new String[] {this.subject, this.from, this.message, this.userId});
     }
     public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
         public Message createFromParcel(Parcel in) {

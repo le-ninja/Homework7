@@ -15,7 +15,9 @@
     <android.support.v7.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/users_card">
+        android:id="@+id/users_card"
+        android:background="@color/card_color"
+        app:cardBackgroundColor="@color/card_color">
 
         <GridLayout
             android:layout_width="match_parent"
@@ -27,7 +29,9 @@
                 android:id="@+id/users_avatar_iv"
                 android:layout_width="50dp"
                 android:layout_height="50dp"
-                android:layout_margin="10dp" />
+                android:layout_margin="10dp"
+                android:background="@null"
+                android:scaleType="fitXY"/>
 
             <LinearLayout
                 android:orientation="vertical"
@@ -43,14 +47,16 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:id="@+id/users_name_tv"
-                    android:textSize="28sp" />
+                    android:textSize="28sp"
+                    android:textColor="@android:color/white" />
 
                 <TextView
                     android:text="User Gender"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:id="@+id/users_gender_tv"
-                    android:textSize="20sp" />
+                    android:textSize="20sp"
+                    android:textColor="@android:color/white" />
 
             </LinearLayout>
 
@@ -60,39 +66,24 @@
                 android:layout_height="wrap_content"
                 android:layout_row="0"
                 android:layout_column="10"
-                android:layout_marginRight="12dp"
-                android:layout_marginEnd="12dp"
+                android:layout_marginRight="20dp"
+                android:layout_marginEnd="20dp"
                 android:id="@+id/users_buttons_ll"
                 android:layout_gravity="center_vertical">
 
                 <ImageButton
-                    android:layout_width="30dp"
-                    app:srcCompat="@drawable/cast_abc_scrubber_control_off_mtrl_alpha"
-                    android:id="@+id/users_message_btn"
-                    android:layout_row="0"
-                    android:layout_column="3"
-                    android:layout_weight="1"
-                    android:layout_height="30dp"
-                    android:layout_marginEnd="6dp"
-                    android:layout_marginRight="6dp"
-                    android:background="@null"
-                    android:scaleType="fitXY"/>
-
-                <ImageButton
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
-                    app:srcCompat="@drawable/cast_abc_scrubber_control_off_mtrl_alpha"
-                    android:id="@+id/users_add_user_btn"
+                    app:srcCompat="@drawable/messenger_bubble_large_white"
+                    android:id="@+id/users_message_user_btn"
                     android:background="@null"
                     android:scaleType="fitXY"
-                    android:layout_row="0"
-                    android:layout_column="13"
                     android:layout_gravity="center_vertical"
                     android:layout_marginEnd="6dp"
                     android:layout_marginRight="6dp"
                     android:layout_marginLeft="3dp"
                     android:layout_marginStart="3dp"
-                    android:layout_weight="1" />
+                    android:layout_weight="1"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp" />
 
             </LinearLayout>
 

@@ -13,6 +13,7 @@ import java.util.List;
 
 public class UsersFragment extends Fragment {
     List<User> list;
+    UsersAdapter adapter;
 
     public UsersFragment() {
 
@@ -36,11 +37,16 @@ public class UsersFragment extends Fragment {
         RecyclerView rv = (RecyclerView) rootView.findViewById(R.id.users_frag_recycler);
         rv.setHasFixedSize(true);
 
-        UsersAdapter adapter = new UsersAdapter(list);
+        adapter = new UsersAdapter(list);
         rv.setAdapter(adapter);
         LinearLayoutManager llm = new LinearLayoutManager(getActivity());
         rv.setLayoutManager(llm);
 
         return rootView;
+    }
+
+    public void updateList(List<User> list) {
+        this.list = list;
+        adapter.notifyDataSetChanged();
     }
 }

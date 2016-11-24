@@ -12,8 +12,8 @@
         android:gravity="center"
         android:textColor="@android:color/white"
         android:background="@color/alert_salmon"
-        android:paddingTop="15sp"
-        android:paddingBottom="15sp" />
+        android:paddingTop="15dp"
+        android:paddingBottom="15dp" />
 
     <RadioGroup
         android:layout_width="match_parent"

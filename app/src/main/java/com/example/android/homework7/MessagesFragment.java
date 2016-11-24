@@ -13,6 +13,7 @@ import java.util.List;
 
 public class MessagesFragment extends Fragment {
     List<Message> list;
+    MessagesAdapter adapter;
 
     public MessagesFragment() {
 
@@ -36,12 +37,18 @@ public class MessagesFragment extends Fragment {
         RecyclerView rv = (RecyclerView) rootView.findViewById(R.id.messages_frag_recycler);
         rv.setHasFixedSize(true);
 
-        MessagesAdapter adapter = new MessagesAdapter(list);
+        adapter = new MessagesAdapter(list);
         rv.setAdapter(adapter);
         LinearLayoutManager llm = new LinearLayoutManager(getActivity());
         rv.setLayoutManager(llm);
 
         return inflater.inflate(R.layout.fragment_messages, container, false);
     }
+
+    public void updateList(List<Message> list) {
+        this.list = list;
+        adapter.notifyDataSetChanged();
+    }
+
 
 }

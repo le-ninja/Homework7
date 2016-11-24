@@ -110,7 +110,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 } else {
                                     FirebaseUser user = task.getResult().getUser();
                                     mRefUsersChild = mRefUsers.child(user.getUid());
-                                    User temp = new User(user.getDisplayName(), "na", "na");
+                                    User temp = new User(user.getDisplayName(), "na", "na",
+                                            user.getUid());
                                     mRefUsersChild.setValue(temp);
                                     startActivity(new Intent(MainActivity.this, ProfileActivity.class));
                                 }
@@ -198,7 +199,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         } else {
                             FirebaseUser u = task.getResult().getUser();
                             mRefUsersChild = mRefUsers.child(u.getUid());
-                            User temp = new User(u.getDisplayName(), "na", "na");
+                            User temp = new User(u.getDisplayName(), "na", "na", u.getUid());
                             mRefUsersChild.setValue(temp);
                             startActivity(new Intent(MainActivity.this, ProfileActivity.class));
                         }
@@ -246,7 +247,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                     String userId = u.getUid();
                                     mRefUsersChild = mRefUsers.child(userId);
                                     User user = new User(name.getText().toString(), ((RadioButton)
-                                            v.findViewById(gender.getCheckedRadioButtonId())).getText().toString(), "na");
+                                            v.findViewById(gender.getCheckedRadioButtonId())).getText().toString(),
+                                            "na", userId);
                                     mRefUsersChild.setValue(user);
                                     startActivity(new Intent(MainActivity.this,
                                             ProfileActivity.class));
