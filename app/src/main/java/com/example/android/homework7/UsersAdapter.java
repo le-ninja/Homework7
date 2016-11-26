@@ -22,14 +22,17 @@ import com.firebase.client.Firebase;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
 import java.util.List;
 
 
 class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.MyViewHolder> {
-    private static List<User> list;
+
+    private List<User> list;
     private static Firebase mRef = new Firebase("https://homework7-425f5.firebaseio.com/Messages");
+
     static class MyViewHolder extends RecyclerView.ViewHolder {
         CardView card;
         TextView nameTV, genderTV;
@@ -45,45 +48,6 @@ class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.MyViewHolder> {
             avatar = (ImageView) v.findViewById(R.id.users_avatar_iv);
 
             messageUser = (ImageButton) v.findViewById(R.id.users_message_user_btn);
-            messageUser.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    AlertDialog.Builder dialog = new AlertDialog.Builder(view.getContext());
-                    LayoutInflater inflater = (LayoutInflater) view.getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                    final View v = inflater.inflate(R.layout.message_user_layout, null);
-                    dialog.setView(v);
-
-                    final EditText from = (EditText) v.findViewById(R.id.alert_message_from_et);
-                    final EditText subject = (EditText) v.findViewById(R.id.alert_message_subject_et);
-                    final EditText message = (EditText) v.findViewById(R.id.alert_message_message_et);
-                    final ImageButton attachedImage = (ImageButton) v.findViewById(R.id.alert_message_attach_image_btn);
-
-                    dialog.setPositiveButton("Send", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            String f = from.getText().toString();
-                            String s = subject.getText().toString();
-                            String m = message.getText().toString();
-                            String fromUserId = ProfileActivity.currentUserId;
-                            String toUserId = list.get(getAdapterPosition()).getId();
-                            Message mess = new Message(f, s, m, fromUserId);
-
-                            Firebase mRefUser = mRef.child(toUserId);
-                            Firebase mRefUserChild = mRefUser.child(mRefUser.getKey());
-                            mRefUserChild.setValue(mess);
-                        }
-                    });
-                    dialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.cancel();
-                        }
-                    });
-
-                    dialog.show();
-
-                }
-            });
         }
     }
 

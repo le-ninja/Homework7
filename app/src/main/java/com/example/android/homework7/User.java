@@ -30,7 +30,7 @@ public class User implements Parcelable {
     }
 
     public String getGender() {
-        return gender;
+        return this.gender;
     }
 
     public void setGender(String gender) {

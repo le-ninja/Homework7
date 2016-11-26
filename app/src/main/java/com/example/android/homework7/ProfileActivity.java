@@ -14,6 +14,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -22,12 +24,20 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
+import com.facebook.login.LoginManager;
 import com.firebase.client.ChildEventListener;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
 import com.firebase.client.ValueEventListener;
+import com.google.android.gms.auth.api.Auth;
+import com.google.android.gms.auth.api.signin.GoogleSignInApi;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.fitness.data.Goal;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -37,14 +47,16 @@ import com.google.firebase.database.DatabaseReference;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
+import java.util.Locale;
 
 
 public class ProfileActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
-    private CallbackManager callbackManager;
-    Firebase mRefUsers, mRefMessages, mRef, mRefUsersInfo, mRefMessagesUser;
+    private Firebase mRefUsers, mRefMessages, mRef, mRefUsersInfo, mRefMessagesUser;
+    private FirebaseUser user;
 
     private TextView userName, userGender;
     private ImageView userAvatar;
@@ -54,10 +66,7 @@ public class ProfileActivity extends AppCompatActivity {
     private UsersFragment uf;
     private MessagesFragment mf;
 
-    FirebaseUser user;
-
     private String passedUserName = "";
-    public static String currentUserId;
     ArrayList<User> usersList = new ArrayList<>();
     ArrayList<Message> messagesList = new ArrayList<>();
 
@@ -80,29 +89,28 @@ public class ProfileActivity extends AppCompatActivity {
                 user = firebaseAuth.getCurrentUser();
                 mRefMessages = mRef.child("Messages");
                 if (user != null) {
-                    currentUserId = user.getUid();
+                    String currentUserId = user.getUid();
                     mRefUsersInfo = mRefUsers.child(currentUserId);
                     mRefMessagesUser = mRefMessages.child(currentUserId);
 
                     mRefUsersInfo.addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
-                            User temp = dataSnapshot.getValue(User.class);
-                            userName.setText(temp.getName());
-                            if (temp.getGender().equals("na")) {
+                            User u = dataSnapshot.getValue(User.class);
+                            userName.setText(u.getName());
+                            userGender.setText(u.getGender());
+
+                            if (u.getGender().equals("na")) {
                                 AlertDialog.Builder dialog = new AlertDialog.Builder(ProfileActivity.this);
                                 LayoutInflater inflater = ProfileActivity.this.getLayoutInflater();
                                 final View v = inflater.inflate(R.layout.profile_gender_alert_layout, null);
                                 dialog.setView(v);
 
                                 final RadioGroup rg = (RadioGroup) v.findViewById(R.id.profile_alert_rg);
-
                                 dialog.setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
-                                        if (rg.getCheckedRadioButtonId() == -1) {
-                                            return;
-                                        } else {
+                                        if (rg.getCheckedRadioButtonId() != -1) {
                                             String gender = ((RadioButton) v.findViewById(rg.getCheckedRadioButtonId()))
                                                     .getText().toString();
                                             mRefUsersInfo.child("gender").setValue(gender);
@@ -111,8 +119,6 @@ public class ProfileActivity extends AppCompatActivity {
                                     }
                                 });
                                 dialog.show();
-                            } else {
-                                userGender.setText(temp.getGender());
                             }
                         }
 
@@ -121,9 +127,6 @@ public class ProfileActivity extends AppCompatActivity {
 
                         }
                     });
-                    if (user.getPhotoUrl() != null) {
-                        Picasso.with(ProfileActivity.this).load(user.getPhotoUrl()).into(userAvatar);
-                    }
                 }
             }
         };
@@ -146,7 +149,7 @@ public class ProfileActivity extends AppCompatActivity {
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 String dataReference = dataSnapshot.getRef().toString();
                 String [] arr = dataReference.split("/");
-                if (!currentUserId.equals(arr[arr.length - 1])) {
+                if (!user.getUid().equals(arr[arr.length - 1])) {
                     User u = dataSnapshot.getValue(User.class);
                     usersList.add(u);
                     uf.updateList(usersList);
@@ -157,7 +160,7 @@ public class ProfileActivity extends AppCompatActivity {
             public void onChildChanged(DataSnapshot dataSnapshot, String s) {
                 String dataReference = dataSnapshot.getRef().toString();
                 String [] arr = dataReference.split("/");
-                if (!currentUserId.equals(arr[arr.length - 1])) {
+                if (!user.getUid().equals(arr[arr.length - 1])) {
                     User u = dataSnapshot.getValue(User.class);
                     usersList.add(u);
                     uf.updateList(usersList);
@@ -168,7 +171,7 @@ public class ProfileActivity extends AppCompatActivity {
             public void onChildRemoved(DataSnapshot dataSnapshot) {
                 String dataReference = dataSnapshot.getRef().toString();
                 String [] arr = dataReference.split("/");
-                if (!currentUserId.equals(arr[arr.length - 1])) {
+                if (!user.getUid().equals(arr[arr.length - 1])) {
                     User u = dataSnapshot.getValue(User.class);
                     usersList.add(u);
                     uf.updateList(usersList);
@@ -186,45 +189,57 @@ public class ProfileActivity extends AppCompatActivity {
             }
         });
 
-        mRef.addListenerForSingleValueEvent(new ValueEventListener() {
+
+        /*mRefMessagesUser.addChildEventListener(new ChildEventListener() {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                mRefMessagesUser.addChildEventListener(new ChildEventListener() {
-                    @Override
-                    public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                        Message m = dataSnapshot.getValue(Message.class);
-                        messagesList.add(m);
-                        mf.updateList(messagesList);
-                    }
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                Message m = dataSnapshot.getValue(Message.class);
+                messagesList.add(m);
+                mf.updateList(messagesList);
+            }
 
-                    @Override
-                    public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
 
-                    }
+            }
 
-                    @Override
-                    public void onChildRemoved(DataSnapshot dataSnapshot) {
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
 
-                    }
+            }
 
-                    @Override
-                    public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
 
-                    }
-
-                    @Override
-                    public void onCancelled(FirebaseError firebaseError) {
-
-                    }
-                });
             }
 
             @Override
             public void onCancelled(FirebaseError firebaseError) {
 
             }
-        });
+        });*/
+    }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_layout, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.sign_out_item:
+                if (AccessToken.getCurrentAccessToken() != null) {
+                    LoginManager.getInstance().logOut();
+                }
+                FirebaseAuth.getInstance().signOut();
+                finish();
+                break;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     class PagerAdapter extends FragmentPagerAdapter {
